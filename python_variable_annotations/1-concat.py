@@ -8,7 +8,5 @@
 
 def concat(str1: str, str2: str) -> str:
     """Returns concataned string"""
-    return str1 + str2
 
-str1 = "egg"
-str2 = "shell"
+    return str1 + str2
