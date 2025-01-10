@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Import math from liblararies"""
 import math
 """
     This function takes a float n as argument and returns
