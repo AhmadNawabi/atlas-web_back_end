@@ -16,7 +16,7 @@ Use the time module to measure an approximate elapsed time.
 """
 
 
-async def measure_time(n: int, max_delay: int) -> typing.List[float]:
+async def measure_time(n: int, max_delay: int) -> float:
     """record the starting time"""
     start_time = time.time()
     """Execute wait_n and await its result"""
