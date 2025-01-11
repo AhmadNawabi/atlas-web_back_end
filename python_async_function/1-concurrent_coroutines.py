@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
-"""import asyncio, typing from library"""
+"""Import asyncio and typing from the library."""
 import asyncio
 import typing
-"""import wait_random from previos file"""
+"""Import wait_random from the previous file."""
 wait_random = __import__('0-basic_async_syntax').wait_random
 
 
-"""
-    Import wait_random from the previous python
-    file that you’ve written and write an async
-    routine called wait_n that takes in 2 int arguments
-    (in this order): n and max_delay. You will spawn
-    wait_random n times with the specified max_delay.
-
-wait_n should return the list of all the delays (float values).
-The list of the delays should be in ascending order without
-using sort() because of concurrency.
-"""
-
-
 async def wait_n(n: int, max_delay: int) -> typing.List[float]:
-    """store wait_random and max_delay in task variable"""
+    """
+    Spawns `wait_random` `n` times with the specified `max_delay`.
+
+    Args:
+        n (int): The number of times to spawn `wait_random`.
+        max_delay (int): The maximum delay value to pass to `wait_random`.
+
+    Returns:
+        typing.List[float]: A list of all the delays (float values)
+          in ascending order,
+                            without using the `sort()` method.
+    """
     tasks = [wait_random(max_delay) for _ in range(n)]
-    """ will spawn wait_random n times with the specified max_delay."""
-    result = await asyncio.gather(*tasks)
-    sorted_result = asyncio.as_completed(result)
-    """return result"""
-    return sorted_result
+    results = []
+
+    for task in asyncio.as_completed(tasks):
+        result = await task
+        results.append(result)
+
+    return results
