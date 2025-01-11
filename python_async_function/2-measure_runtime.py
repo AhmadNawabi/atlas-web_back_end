@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""import async, typing and time modules"""
+"""import async and time modules"""
 import asyncio
-import typing
 import time
 
 """Import the previos taks wait_n"""
@@ -20,10 +19,9 @@ async def measure_time(n: int, max_delay: int) -> float:
     """record the starting time"""
     start_time = time.time()
     """Execute wait_n and await its result"""
-    await wait_n(n, max_delay)
+    asyncio.run(wait_n(n, max_delay))
     """record the end time"""
     end_time = time.time()
-
     """subtract end time from starting time"""
     total_time = end_time - start_time
     """return the total time devided by n"""
