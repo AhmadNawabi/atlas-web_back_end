@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""import asyncio, typing from library"""
+"""import asyncio, typing, heapq from library"""
 import typing
 import asyncio
+import heapq
 """import wait_random from previos file"""
 wait_random = __import__('0-basic_async_syntax').wait_random
 
@@ -27,4 +28,8 @@ async def wait_n(n: int, max_delay: int) -> typing.List[float]:
     """return the list of all the delays (float values).
     The list of the delays should be in ascending order
     without using sort() because of concurrency."""
-    return result
+    sorted_result = list(heapq.merge(result))
+    """sort list in ascending order by using heapq from library
+        not sort() function
+    """
+    return sorted_result
