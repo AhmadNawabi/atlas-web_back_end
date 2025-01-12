@@ -19,7 +19,7 @@ explain it to yourself.
 """
 
 
-async def measure_runtime() -> typing.List[float]:
+async def measure_runtime() -> float:
     """record the start time"""
     start = time.time()
     """measure_runtime coroutine
