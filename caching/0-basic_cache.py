@@ -63,7 +63,7 @@ class BasicCache(BaseCaching):
             or `None` if the `key` is `None`
             or not in the cache.
         """
-        if key == None:
+        if key is None:
             return None
         if key not in self.cache_data:
             return None
