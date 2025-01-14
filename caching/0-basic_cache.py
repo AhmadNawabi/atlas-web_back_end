@@ -45,7 +45,7 @@ class BasicCache(BaseCaching):
         """
         self.cache_data[key] = item
         if key or item == None:
-            pass
+            return
         return self.cache_data
 
     def get(self, key):
