@@ -21,6 +21,8 @@ return None.
 
 
 class BasicCache(BaseCaching):
+    """You must use self.cache_data - dictionary
+    from the parent class BaseCaching"""
     def __init__(self):
         self.cache_data = {}
 
