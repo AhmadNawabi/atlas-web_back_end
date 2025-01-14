@@ -43,10 +43,8 @@ class BasicCache(BaseCaching):
         Returns:
             None: This method does not return any value.
         """
-        self.cache_data[key] = item
-        if key is None or item is None:
-            return
-        return self.cache_data
+        if key is not None and item is not None:
+            self.cache_data[key] = item
 
     def get(self, key):
         """
