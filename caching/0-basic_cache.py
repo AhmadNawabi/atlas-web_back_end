@@ -44,7 +44,9 @@ class BasicCache(BaseCaching):
             None: This method does not return any value.
         """
         self.cache_data[key] = item
-        if key is None or item is None:
+        if key == None:
+            return
+        if item == None:
             return
         return self.cache_data
 
