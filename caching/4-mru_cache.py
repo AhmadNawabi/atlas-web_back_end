@@ -37,7 +37,7 @@ class MRUCache(BaseCaching):
         self.order.append(key)
 
         if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            most_use = self.order.pop()
+            most_use = self.order.pop(-2)
             del self.cache_data[most_use]
             print(f'DISCARD: {most_use}')
 
