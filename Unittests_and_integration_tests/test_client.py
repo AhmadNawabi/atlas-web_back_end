@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """Unit tests for the client module."""
-
 import unittest
 from unittest.mock import patch, PropertyMock, Mock
 from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from requests.exceptions import HTTPError
-from fixtures import TEST_PAYLOAD
 
-# Define your fixtures directly in this file as a workaround
+# Define fixtures directly in this file as a workaround
 org_payload = {"repos_url": "test_repos_url"}
 repos_payload = [
     {"name": "repo1", "license": {"key": "my_license"}},
@@ -70,19 +68,26 @@ class TestGithubOrgClient(unittest.TestCase):
 
 
 @parameterized_class([
-    {"org_payload": org_payload, "repos_payload": repos_payload,
-     "expected_repos": expected_repos, "apache2_repos": apache2_repos}
+    {
+        "org_payload": org_payload,
+        "repos_payload": repos_payload,
+        "expected_repos": expected_repos,
+        "apache2_repos": apache2_repos
+    }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for the GithubOrgClient.public_repos method."""
+
     @classmethod
     def setUpClass(cls):
         """Set up resources before any test cases are run."""
         cls.get_patcher = patch('requests.get')
         cls.mock_get = cls.get_patcher.start()
+
+        # Mock responses for requests.get(url).json()
         cls.mock_get.side_effect = [
-            Mock(status_code=200, json=lambda: org_payload),
-            Mock(status_code=200, json=lambda: repos_payload),
+            Mock(status_code=200, json=lambda: cls.org_payload),
+            Mock(status_code=200, json=lambda: cls.repos_payload),
         ]
 
     @classmethod
@@ -93,7 +98,15 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def test_public_repos(self):
         """Test public_repos method in an integration test scenario."""
         test_instance = GithubOrgClient("test_org")
-        self.assertEqual(test_instance.public_repos(), expected_repos)
+        self.assertEqual(test_instance.public_repos(), self.expected_repos)
+
+    def test_public_repos_with_license(self):
+        """Test public_repos method with a specific license filter."""
+        test_instance = GithubOrgClient("test_org")
+        self.assertEqual(
+            test_instance.public_repos(license="my_license"),
+            self.apache2_repos
+        )
 
 
 if __name__ == '__main__':
