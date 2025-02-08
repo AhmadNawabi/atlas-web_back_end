@@ -24,7 +24,8 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable] = None) -> str:
+    def get(self, key: str, fn: Optional[Callable] = None
+            ) -> Union[str, bytes, int, float]:
         """
         get method take a key string argument and an optional Callable
         argument named fn. This callable will be used to convert the data
@@ -42,9 +43,9 @@ class Cache:
         get_str that will automatically parametrize
         Cache.get with the correct conversion function.
         """
-        return self.get(key, fn=lambda d: d.decode("UTF-8"))
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
 
-    def get_int(self, key: int) -> int:
+    def get_int(self, key: str) -> int:
         """
         get_int that will automatically parametrize
         Cache.get with the correct conversion function.
@@ -53,11 +54,14 @@ class Cache:
 
 
 if __name__ == "__main__":
-    cache = Cache()  # Create an instance of Cache
+    cache = Cache()
 
-    key = cache.store(b"foo")
-print(b"foo" == cache.get(key))  # This will now return True
+TEST_CASES = {
+    b"foo": None,
+    123: int,
+    "bar": lambda d: d.decode("utf-8")
+}
 
-# Test with callable, e.g., converting data to an integer
-key = cache.store(123)
-print(123 == cache.get(key, fn=int))  # This will return True
+for value, fn in TEST_CASES.items():
+    key = cache.store(value)
+    assert cache.get(key, fn=fn) == value
