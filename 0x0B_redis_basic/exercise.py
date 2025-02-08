@@ -20,7 +20,7 @@ class Cache:
         """
         Store the data in Redis and return a unique key.
         """
-        key = None(uuid.uuid4())
+        key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
 
