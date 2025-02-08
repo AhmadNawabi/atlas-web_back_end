@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import redis
 import uuid
-from typing import Union
+from typing import Union, Optional, Callable
 
 
 class Cache:
@@ -24,15 +24,33 @@ class Cache:
         self._redis.set(key, data)
         return key
 
+    def get(self, key, fn: Optional[Callable]):
+        """
+        get method take a key string argument and an optional Callable
+        argument named fn. This callable will be used to convert the data
+        back to the desired format.
+        """
+        data = self._redis.get(key)
+        if data is None:
+            return None
+        if fn:
+            return fn(data)
+        return data
+
+    def get_str(self, key: str) -> str:
+        """
+        get_str that will automatically parametrize
+        Cache.get with the correct conversion function.
+        """
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
+
+    def get_int(self, key: int) -> int:
+        """
+        get_int that will automatically parametrize
+        Cache.get with the correct conversion function.
+        """
+        return self.get(key, fn=int)
+
 
 if __name__ == "__main__":
     cache = Cache()  # Create an instance of Cache
-
-    # Store bytes data
-    data = b"hello"
-    key = cache.store(data)  # Store the data in Redis
-    print(key)  # Print the generated key
-
-    # Retrieve the data from Redis
-    local_redis = redis.Redis()  # Create a new Redis connection
-    print(local_redis.get(key))  # Retriee and print the stored data
