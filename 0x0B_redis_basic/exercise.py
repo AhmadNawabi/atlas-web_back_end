@@ -32,25 +32,23 @@ class Cache:
         back to the desired format.
         """
         data = self._redis.get(key)
-        if data is None:
-            return None
         if fn:
             return fn(data)
         return data
 
     def get_str(self, key: str) -> str:
-        """
-        get_str that will automatically parametrize
-        Cache.get with the correct conversion function.
-        """
-        return self.get(key, fn=lambda d: d.decode("utf-8"))
+        """Transform a redis variable to str python pyte"""
+        variable = self._redis.get(key)
+        return variable.decode("UTF-8")
 
     def get_int(self, key: str) -> int:
-        """
-        get_int that will automatically parametrize
-        Cache.get with the correct conversion function.
-        """
-        return self.get(key, fn=int)
+        """Transform a redis type variavle to str python type"""
+        variable = self._redis.get(key)
+        try:
+            variable = int(variable.decode("UTF-8"))
+        except Exception:
+            variable = 0
+        return variable
 
 
 if __name__ == "__main__":
