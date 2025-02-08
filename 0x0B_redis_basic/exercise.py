@@ -24,7 +24,9 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key, fn: Optional[Callable]):
+    def get(self, key: str,
+            fn: Optional[Callable[[bytes], Union[str, int, float]]]
+            ) -> Union[str, bytes, int, float, None]:
         """
         get method take a key string argument and an optional Callable
         argument named fn. This callable will be used to convert the data
@@ -42,7 +44,7 @@ class Cache:
         get_str that will automatically parametrize
         Cache.get with the correct conversion function.
         """
-        return self.get(key, fn=lambda d: d.decode("utf-8"))
+        return self.get(key, fn=lambda d: d.decode("UTF-8"))
 
     def get_int(self, key: int) -> int:
         """
