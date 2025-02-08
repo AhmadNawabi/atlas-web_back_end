@@ -16,13 +16,13 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    def store(self, data: Union[str, bytes, int, float]):
+    def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Store the data in Redis and return a unique key.
         """
         key = str(uuid.uuid4())
         self._redis.set(key, data)
-        return str(key)
+        return key
 
 
 if __name__ == "__main__":
