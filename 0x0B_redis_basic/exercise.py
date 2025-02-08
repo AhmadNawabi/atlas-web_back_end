@@ -24,9 +24,7 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str,
-            fn: Optional[Callable[[bytes], Union[str, int, float]]]
-            ) -> Union[str, bytes, int, float, None]:
+    def get(self, key: str, fn: Optional[Callable] = None) -> str:
         """
         get method take a key string argument and an optional Callable
         argument named fn. This callable will be used to convert the data
@@ -56,3 +54,10 @@ class Cache:
 
 if __name__ == "__main__":
     cache = Cache()  # Create an instance of Cache
+
+    key = cache.store(b"foo")
+print(b"foo" == cache.get(key))  # This will now return True
+
+# Test with callable, e.g., converting data to an integer
+key = cache.store(123)
+print(123 == cache.get(key, fn=int))  # This will return True
