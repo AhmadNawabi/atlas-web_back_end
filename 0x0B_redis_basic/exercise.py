@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import redis
 import uuid
-from typing import Union, Optional, Callable
+from typing import Union, Callable
 
 
 class Cache:
@@ -24,7 +24,7 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable] = None
+    def get(self, key: str, fn: Callable = None
             ) -> Union[str, bytes, int, float]:
         """
         get method take a key string argument and an optional Callable
@@ -32,23 +32,25 @@ class Cache:
         back to the desired format.
         """
         data = self._redis.get(key)
+        if data is None:
+            return None
         if fn:
             return fn(data)
         return data
 
     def get_str(self, key: str) -> str:
-        """Transform a redis variable to str python pyte"""
-        variable = self._redis.get(key)
-        return variable.decode("UTF-8")
+        """
+        get_str that will automatically parametrize
+        Cache.get with the correct conversion function.
+        """
+        return self.get(key, fn=lambda d: d.decode("UTF-8"))
 
     def get_int(self, key: str) -> int:
-        """Transform a redis type variavle to str python type"""
-        variable = self._redis.get(key)
-        try:
-            variable = int(variable.decode("UTF-8"))
-        except Exception:
-            variable = 0
-        return variable
+        """
+        get_int that will automatically parametrize
+        Cache.get with the correct conversion function.
+        """
+        return self.get(key, fn=int)
 
 
 if __name__ == "__main__":
