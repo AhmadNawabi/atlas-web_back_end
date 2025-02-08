@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import redis
 import uuid
-from typing import Union, Callable
+from typing import Union, Optional, Callable
 
 
 class Cache:
     """
-    A class to interect with Redis and store data with unique keys.
+    A class to interact with Redis and store data with unique keys.
     """
 
     def __init__(self):
@@ -24,12 +24,11 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None
+    def get(self, key: str, fn: Optional[Callable] = None
             ) -> Union[str, bytes, int, float]:
         """
-        get method take a key string argument and an optional Callable
-        argument named fn. This callable will be used to convert the data
-        back to the desired format.
+        Retrieve data from Redis using the key and optionally
+        apply a conversion function.
         """
         data = self._redis.get(key)
         if data is None:
@@ -40,28 +39,14 @@ class Cache:
 
     def get_str(self, key: str) -> str:
         """
-        get_str that will automatically parametrize
-        Cache.get with the correct conversion function.
+        Automatically parametrize Cache.get with the correct
+        conversion function to decode bytes to str.
         """
-        return self.get(key, fn=lambda d: d.decode("UTF-8"))
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
 
     def get_int(self, key: str) -> int:
         """
-        get_int that will automatically parametrize
-        Cache.get with the correct conversion function.
+        Automatically parametrize Cache.get with the correct
+        conversion function to convert bytes to int.
         """
         return self.get(key, fn=int)
-
-
-if __name__ == "__main__":
-    cache = Cache()
-
-TEST_CASES = {
-    b"foo": None,
-    123: int,
-    "bar": lambda d: d.decode("utf-8")
-}
-
-for value, fn in TEST_CASES.items():
-    key = cache.store(value)
-    assert cache.get(key, fn=fn) == value
