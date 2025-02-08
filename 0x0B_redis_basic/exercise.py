@@ -5,7 +5,7 @@ from typing import Union, Optional, Callable, Any
 from functools import wraps
 
 
-def count_call(method: Callable) -> Callable:
+def count_calls(method: Callable) -> Callable:
     """
     Decorator that takes a single method Callable argument
     and returns a Callable
@@ -35,7 +35,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @count_call
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Store the data in Redis and return a unique key.
