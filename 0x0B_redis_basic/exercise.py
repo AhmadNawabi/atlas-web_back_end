@@ -1,7 +1,26 @@
 #!/usr/bin/env python3
 import redis
 import uuid
-from typing import Union, Optional, Callable
+from typing import Union, Optional, Callable, Any
+from functools import wraps
+
+
+def count_call(method: Callable) -> Callable:
+    """
+    Decorator that takes a single method Callable argument
+    and returns a Callable
+    """
+    key = method.__qualname__
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs) -> Any:
+        """
+        Increments the count for that key every time the method
+        is called and return the value returned by the original method
+        """
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache:
@@ -16,6 +35,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_call
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Store the data in Redis and return a unique key.
@@ -50,3 +70,14 @@ class Cache:
         conversion function to convert bytes to int.
         """
         return self.get(key, fn=int)
+
+
+if __name__ == "__main__":
+    cache = Cache()
+
+    cache.store(b"first")
+    print(cache.get(cache.store.__qualname__))
+
+    cache.store(b"second")
+    cache.store(b"third")
+    print(cache.get(cache.store.__qualname__))
