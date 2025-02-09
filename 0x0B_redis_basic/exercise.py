@@ -29,6 +29,15 @@ def call_history(method: Callable) -> Callable:
     """
     @wraps(method)
     def wrapper(self, *args, **kwargs):
+        """
+        The wrapper function is an inner function used within
+        the call_history decorator.
+        Its primary purpose is to intercept calls to the decorated
+        method (e.g., store) and log the inputs and outputs
+        of each call into Redis.
+        This allows for tracking the history of function calls,
+        enabling features like replaying the function's execution history.
+        """
         input_key = f"{method.__qualname__}:inputs"
         output_key = f"{method.__qualname__}:outputs"
         self._redis.rpush(input_key, str(args))
