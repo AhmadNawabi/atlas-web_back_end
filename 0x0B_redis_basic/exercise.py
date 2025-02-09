@@ -55,7 +55,7 @@ def replay(method: Callable) -> Callable:
 
     print(f"{method.__qualname__} was called {len(inputs)} times:")
     for input_data, output_data in zip(inputs, outputs):
-        print(f"{method.__qualname__}{input_data} -> {output_data}")
+        print(f"{method.__qualname__}(*{input_data}) -> {output_data}")
 
 
 class Cache:
@@ -106,3 +106,11 @@ class Cache:
         conversion function to convert bytes to int.
         """
         return self.get(key, fn=int)
+
+
+if __name__ == "__main__":
+    cache = Cache()
+    cache.store("foo")
+    cache.store("bar")
+    cache.store(42)
+    replay(cache.store)
