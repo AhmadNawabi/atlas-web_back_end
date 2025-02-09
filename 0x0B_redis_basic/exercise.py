@@ -38,6 +38,26 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(method: Callable) -> Callable:
+    """
+    Display the history of calls of a particular function.
+    """
+    cache = method.__self__  # Get cache instance
+    input_key = f"{method.__qualname__}:inputs"
+    output_key = f"{method.__qualname__}:outputs"
+
+    inputs = cache._redis.lrange(input_key, 0, -1)
+    outputs = cache._redis.lrange(output_key, 0, -1)
+
+    # Decode inputs and outputs from bytes to strings
+    inputs = [input.decode("utf-8") for input in inputs]
+    outputs = [output.decode("utf-8") for output in outputs]
+
+    print(f"{method.__qualname__} was called {len(inputs)} times:")
+    for input_data, output_data in zip(inputs, outputs):
+        print(f"{method.__qualname__}{input_data} -> {output_data}")
+
+
 class Cache:
     """
     A class to interact with Redis and store data with unique keys.
@@ -86,22 +106,3 @@ class Cache:
         conversion function to convert bytes to int.
         """
         return self.get(key, fn=int)
-
-
-if __name__ == "__main__":
-    cache = Cache()
-
-    s1 = cache.store("first")
-    print(s1)
-    s2 = cache.store("secont")
-    print(s2)
-    s3 = cache.store("third")
-    print(s3)
-
-    inputs = cache._redis.lrange(
-        "{}:inputs".format(cache.store.__qualname__), 0, -1)
-    outputs = cache._redis.lrange(
-        "{}:outputs".format(cache.store.__qualname__), 0, -1)
-
-    print("inputs: {}".format(inputs))
-    print("outputs: {}".format(outputs))
