@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+This module provides functionality for interacting with Redis.
+It includes decorators for tracking function calls and their history,
+a `Cache` class for managing data in Redis, and utility
+methods for storing and retrieving data.
+"""
 import redis
 import uuid
 from typing import Union, Optional, Callable, Any
@@ -115,11 +121,3 @@ class Cache:
         conversion function to convert bytes to int.
         """
         return self.get(key, fn=int)
-
-
-if __name__ == "__main__":
-    cache = Cache()
-    cache.store("foo")
-    cache.store("bar")
-    cache.store(42)
-    replay(cache.store)
