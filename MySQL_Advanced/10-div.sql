@@ -1,9 +1,9 @@
 -- 10-div.sql
 DELIMITER $$
 
-CREATE FUNCTION SafeDive(a INT, b INT) RETURNS FLOAT DETERMINISTIC
+CREATE FUNCTION SafeDiv(a INT, b INT) RETURNS FLOAT DETERMINISTIC
 BEGIN
-    -- Check if the dicisor is 0
+    -- Check if the divisor is 0
     IF b = 0 THEN
         RETURN 0;
     ELSE
@@ -11,4 +11,4 @@ BEGIN
     END IF;
 END$$
 
-DELIMITER;
+DELIMITER ;
