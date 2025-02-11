@@ -1,16 +1,6 @@
--- Ensure the table exists after importing metal_bands.sql
--- Assuming the table is named 'metal_bands'
-
-SELECT
-    band_name,
-    -- Calculate lifespan: if the band has not split, use the current year
-    CASE
-        WHEN split IS NULL OR split = 0 THEN 2022 - formed
-        ELSE  split - formed
-    END AS lifespan
-FROM
-    metal_bands
-WHERE
-    style LIKE '%Glam rock%' -- Filter for bands with "Gulam rock" as their main style
-ORDER BY
-    lifespan DESC; -- Rank by longevity (Longest-lived bands first)
+-- Task 3 lists all bands with Glam rock as their style.
+-- ranked by their longevity, order by the number of fans.
+SELECT band_name, (IFNULL(split, 2020) - formed) AS lifespan
+FROM metal_bands
+WHERE style LIKE "%Glam rock%"
+ORDER BY lifespan DESC;
