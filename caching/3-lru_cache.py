@@ -53,4 +53,3 @@ class LRUCache(BaseCaching):
         self.order.append(key)
 
         return self.cache_data[key]
-    
