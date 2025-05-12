@@ -1,41 +1,124 @@
 #!/usr/bin/env python3
 """
-Encrypt password module
+Filtered logger module
 """
 
-import bcrypt
+import os
+import re
+import logging
+import mysql.connector
+from typing import List
 
 
-def hash_password(password: str) -> bytes:
+def filter_datum(
+    fields: List[str], redaction: str, message: str, separator: str
+) -> str:
     """
-    Hash a password for storing.
+    Returns the log message obfuscated.
+    """
+    for field in fields:
+        message = re.sub(
+            f"{field}=[^{separator}]*",
+            f"{field}={redaction}",
+            message
+        )
 
-    Args:
-        password (str): The password to hash.
+    return message
+
+
+class RedactingFormatter(logging.Formatter):
+    """Redacting Formatter class"""
+
+    REDACTION = "***"
+    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
+    SEPARATOR = ";"
+
+    def __init__(self, fields: List[str]):
+        """
+        Create a new instance of RedactingFormatter.
+
+        Args:
+                fields (List[str]): A list of strings representing
+                fields to obfuscate.
+        """
+        super(RedactingFormatter, self).__init__(self.FORMAT)
+        self.fields = fields
+
+    def format(self, record: logging.LogRecord) -> str:
+        """
+        Filter values in incoming log records using filter_datum.
+
+        Args:
+                record (logging.LogRecord): The log record.
+
+        Returns:
+                str: The formatted and obfuscated log record.
+        """
+        original_formatted_message = super().format(record)
+        return filter_datum(
+            self.fields,
+            self.REDACTION,
+            original_formatted_message,
+            self.SEPARATOR
+        )
+
+
+# Define the PII_FIELDS constant
+PII_FIELDS: tuple = ("name", "email", "phone", "ssn", "password")
+
+
+def get_logger() -> logging.Logger:
+    """
+    Creates and returns a Logger object.
 
     Returns:
-        bytes: The hashed password.
+            logging.Logger: The configured logger.
     """
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    logger = logging.getLogger("user_data")
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(RedactingFormatter(PII_FIELDS))
+    logger.addHandler(handler)
+
+    return logger
 
 
-def is_valid(hashed_password: bytes, password: str) -> bool:
+def get_db() -> mysql.connector.connection.MySQLConnection:
     """
-    Validate that the provided password matches the hashed password.
-
-    Args:
-        hashed_password (bytes): The hashed password.
-        password (str): The password to validate.
+    Create and return a connector to the database.
 
     Returns:
-        bool: True if the password is valid, False otherwise.
+            MySQLConnection: The connection to the database.
     """
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+    username = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    password = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
+    host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    db_name = os.getenv("PERSONAL_DATA_DB_NAME")
+
+    connection = mysql.connector.connect(
+        user=username, password=password, host=host, database=db_name
+    )
+    return connection
 
 
-# to test the functions from this file
-if __name__ == "__main__":
-    password = "MyAmazingPassw0rd"
-    hashed = hash_password(password)
-    print(hashed)
-    print(is_valid(hashed, password))
+def main():
+    """
+    Main function that retrieves and displays filtered
+    user data.
+    """
+    db_connection = get_db()
+    cursor = db_connection.cursor()
+    cursor.execute("SELECT * FROM users;")
+    logger = get_logger()
+
+    for row in cursor.fetchall():
+        to_log = ("name={};email={};phone={};ssn={};password={};"
+                  "ip={};last_login={};user_agent={};").format(*row)
+        logger.info(filter_datum(PII_FIELDS, "***", to_log, ";"))
+
+    cursor.close()
+    db_connection.close()
+    if __name__ == "main":
+        main()
