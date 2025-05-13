@@ -1,23 +1,16 @@
-#!/usr/bin/env python3
-"""
-Authentication module
-"""
+def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
+    """Determine if authentication is required for a path"""
+    if path is None:
+        return True
 
-from flask import request
-from typing import List, TypeVar
+    if excluded_paths is None or not excluded_paths:
+        return True
 
+    # Ensure path ends with a slash for comparison
+    path = path if path.endswith('/') else path + '/'
 
-class Auth:
-    """Template for all authentication systems"""
+    for ex_path in excluded_paths:
+        if ex_path == path:
+            return False
 
-    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """Public method: determines if path requires authentication"""
-        return False
-
-    def authorization_header(self, request=None) -> str:
-        """Public method: retrieves the Authorization header from request"""
-        return None
-
-    def current_user(self, request=None) -> TypeVar('User'):
-        """Public method: retrieves the current user from the request"""
-        return None
+    return True
