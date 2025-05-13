@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
     """Determine if authentication is required for a path"""
     if path is None:
