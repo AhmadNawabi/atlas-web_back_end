@@ -1,9 +1,22 @@
 #!/usr/bin/env python3
-""" Module of Users views
+""" Module of Users views with BasicAuth current_user support
 """
-from api.v1.views import app_views
 from flask import abort, jsonify, request
+from api.v1.views import app_views
 from models.user import User
+
+# --- Add this section if not already present ---
+from api.v1.app import app  # Assuming your main app is defined in api/v1/app.py
+from api.v1.auth.basic_auth import BasicAuth
+
+auth = BasicAuth()
+
+@app.before_request
+def set_current_user():
+    """Middleware to attach current_user to request using BasicAuth"""
+    if auth:
+        request.current_user = auth.current_user(request)
+# ------------------------------------------------
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
@@ -25,7 +38,6 @@ def view_one_user(user_id: str = None) -> str:
       - User object JSON represented
       - 404 if the User ID doesn't exist
     """
-
     if user_id is None:
         abort(404)
 
@@ -50,7 +62,7 @@ def delete_user(user_id: str = None) -> str:
     Path parameter:
       - User ID
     Return:
-      - empty JSON is the User has been correctly deleted
+      - empty JSON if the User has been correctly deleted
       - 404 if the User ID doesn't exist
     """
     if user_id is None:
