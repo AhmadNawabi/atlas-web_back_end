@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-""" Module of Session authentication views
-"""
+"""Module of Session authentication views"""
 from api.v1.views import app_views
 from flask import abort, jsonify, request
 from models.user import User
@@ -9,9 +8,10 @@ from os import getenv
 
 @app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
 def login():
-    """ POST /auth_session/login
-    Return
-        - Logged in user
+    """POST /auth_session/login
+    Return:
+        - Logged in user JSON on success
+        - JSON error messages otherwise
     """
     email = request.form.get('email')
 
@@ -49,11 +49,12 @@ def login():
 
 
 @app_views.route('/auth_session/logout',
-    methods=['DELETE'], strict_slashes=False)
+                 methods=['DELETE'], strict_slashes=False)
 def logout():
-    """ DELETE /auth_session/logout
+    """DELETE /auth_session/logout
     Return:
-        - Empty dictionary if succesful
+        - Empty JSON dict on successful logout
+        - 404 if session destruction fails
     """
     from api.v1.app import auth
 
