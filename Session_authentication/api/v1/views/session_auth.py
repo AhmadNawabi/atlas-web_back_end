@@ -14,12 +14,10 @@ def login():
         - JSON error messages otherwise
     """
     email = request.form.get('email')
-
     if not email:
         return jsonify({"error": "email missing"}), 400
 
     password = request.form.get('password')
-
     if not password:
         return jsonify({"error": "password missing"}), 400
 
@@ -40,10 +38,9 @@ def login():
     user = found_users[0]
     session_id = auth.create_session(user.id)
 
-    SESSION_NAME = getenv("SESSION_NAME")
-
+    session_name = getenv("SESSION_NAME")
     response = jsonify(user.to_json())
-    response.set_cookie(SESSION_NAME, session_id)
+    response.set_cookie(session_name, session_id)
 
     return response
 
@@ -52,14 +49,14 @@ def login():
                  methods=['DELETE'], strict_slashes=False)
 def logout():
     """DELETE /auth_session/logout
+    Deletes the user session by removing the session ID cookie
     Return:
-        - Empty JSON dict on successful logout
-        - 404 if session destruction fails
+        - Empty JSON dict with status 200 if session destroyed successfully
+        - 404 error if session does not exist or deletion failed
     """
     from api.v1.app import auth
 
     deleted = auth.destroy_session(request)
-
     if not deleted:
         abort(404)
 
