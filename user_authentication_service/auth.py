@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Authentication module for user management and sessions.
-"""
+"""Authentication module for user management and sessions."""
 
 import bcrypt
 import uuid
@@ -91,7 +90,9 @@ class Auth:
         except Exception:
             return None
 
-    def get_user_from_session_id(self, session_id: Optional[str]) -> Optional[User]:
+    def get_user_from_session_id(
+        self, session_id: Optional[str]
+    ) -> Optional[User]:
         """Retrieves a user based on a session ID.
 
         Args:
