@@ -77,22 +77,27 @@ def profile() -> tuple:
 def reset_password() -> tuple:
     """ Reset password
     """
-    email = request.form.get('email')
+    email = request.form.get('email') or (request.get_json() or {}).get('email')
+    if not email:
+        abort(400)
+
     try:
         token = AUTH.get_reset_password_token(email)
-        return jsonify({"email": email,
-                        "reset_token": token}), 200
+        return jsonify({"email": email, "reset_token": token}), 200
     except ValueError:
         abort(403)
 
 
 @app.route('/reset_password', methods=['PUT'], strict_slashes=False)
 def update_password() -> tuple:
-    """ Update
+    """ Update password
     """
-    email = request.form.get('email')
-    reset_token = request.form.get('reset_token')
-    new_password = request.form.get('new_password')
+    email = request.form.get('email') or (request.get_json() or {}).get('email')
+    reset_token = request.form.get('reset_token') or (request.get_json() or {}).get('reset_token')
+    new_password = request.form.get('new_password') or (request.get_json() or {}).get('new_password')
+
+    if not email or not reset_token or not new_password:
+        abort(400)
 
     try:
         AUTH.update_password(reset_token, new_password)
