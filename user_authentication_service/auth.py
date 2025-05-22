@@ -57,22 +57,14 @@ class Auth:
 
     def create_session(self, email: str) -> str:
         """
-        Create a session ID for a user with the given email.
-
-        Args:
-            email (str): The email of the user.
-
-        Returns:
-            str: The session ID, or None if the user does not exist.
-        """
+        Create a session for a user."""
         try:
             user = self._db.find_user_by(email=email)
         except NoResultFound:
             return None
 
         session_id = _generate_uuid()
-        user.session_id = session_id
-        self._db._session.commit()
+        self._db.update_user(user.id, session_id=session_id)
 
         return session_id
 
@@ -98,18 +90,13 @@ class Auth:
 
     def destroy_session(self, user_id: int) -> None:
         """
-        Destroy a user session.
-
-        Args:
-            user_id (int): The user ID for whom to destroy the session.
-        """
+        Destroy a user's session."""
         if user_id is None:
             return None
 
         try:
             user = self._db.find_user_by(id=user_id)
-            user.session_id = None
-            self._db._session.commit()
+            self._db.update_user(user.id, session_id=None)
         except NoResultFound:
             return None
 
